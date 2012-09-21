@@ -1,0 +1,25 @@
+#!/bin/sh
+
+test -n "$1" && test -n "$2" || {
+        echo "$0 <status|start|stop|restart> [my-vpn.conf]"
+        exit 1
+}
+
+CMD="$1" ; shift
+
+VPNS="$*"
+
+if [ "$1" = "all" ]; then
+	VPNS="/etc/openvpn/*.conf"
+fi
+
+ALL=""
+for vpn in $VPNS ; do
+        NAME="${vpn%.conf}" # strip .conf
+        NAME="${NAME##*/}" # strip /etc/openvpn/
+        ALL="$ALL $NAME"
+done
+
+for vpn in $ALL; do
+        initctl "$CMD" openvpn name="$vpn"
+done
